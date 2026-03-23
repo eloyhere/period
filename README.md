@@ -1,241 +1,37 @@
-# 🌌 The Principle of Periodicity in Nature  
-### — Understanding the Universe through Simple Waves
+**The Periodic Principle of Natural Philosophy**
 
-> “The universe never truly stops; it is always breathing.  
->  Every breath of the cosmos is a cycle.”
+Natural phenomena operate ceaselessly yet always adhere to the way of cyclical recurrence. From the alternation of day and night to the rotation of the seasons, from the pulse of the human body to the rise and fall of history, everything possesses rhythm and regularity. This is the core of natural philosophy—the principle of periodicity. It is not abstract speculation but an observable and quantifiable operation of the Dao of Heaven. This article takes the standard sine function as its mathematical foundation, integrating the four seasons and five elements from the *Yellow Emperor’s Inner Canon* with the yuan-hui-yun-shi and sixty-four hexagrams from the *Supreme Ultimate Treatise on the World*, to reveal how periodicity unifies space and time, connects heaven and humanity, and inspires readers to comprehend ancient and modern wisdom while exploring the harmonious resonance between humankind and the cosmos.
 
-***
+### The Mathematical Model of Periodicity: The Philosophical Implications of the Sine Function
 
-## 🧭 0. What Is Cyclic Mathematics?
+The standard sine function \( y = A \sin(\omega t + \phi) + C \) (where \( \omega = \frac{2\pi}{T} \), and \( T \) is the period) is the most concise tool for describing periodic phenomena. The amplitude \( A \) represents intensity levels, the angular frequency \( \omega \) determines the pace, the phase \( \phi \) regulates the starting point, and the constant \( C \) maintains overall balance. This function features alternating peaks and troughs, never diminishing yet precisely returning to the origin. It not only depicts pendulum vibrations and wave propagation but can also simulate all cycles in nature: the day and night of sunrise and sunset, the seasons of cold and heat, and the waxing and waning of qi and blood in the human body.
 
-**Cyclic Mathematics** is a new way of understanding reality.  
-It sees all phenomena — time, space, life, the seasons — as parts of **periodic movements**.
+When multiple sine functions are superimposed (composite), they form complex waveforms, as shown in Fourier decomposition: any periodic phenomenon can be broken down into the sum of fundamental and harmonic frequencies. This precisely corresponds to the interaction of multiple rhythms in nature—a single period is insufficient to encompass all things; only composites reveal the richness of the Dao of Heaven. Readers may imagine: by modelling with different \( T \) values, one can restore the superposition of spring, summer, autumn, and winter, or the fluctuations of historical dynasties. This mathematical rigour precisely corroborates the ancient philosophers’ principle of “cyclical return,” inviting reflection: is the universe fundamentally a grand sine symphony?
 
-Every process, from waves in the sea to the rising of the sun, can be expressed by the same mathematical form — a **sine wave**:
+### The *Yellow Emperor’s Inner Canon*: The Foundational Periodicity of the Four Seasons and Five Elements
 
-$$
-y = A \sin\left(\frac{2\pi}{T}x + \Phi\right) + C
-$$
+The *Yellow Emperor’s Inner Canon* points directly to the root of periodicity: “The yin and yang of the four seasons are the foundation of all things. Thus, the sage nurtures yang in spring and summer, and yin in autumn and winter, in accordance with their root.” Heaven and earth’s yin and yang wax and wane, giving rise to the four seasons of spring, summer, autumn, and winter, with all things following in birth, growth, harvest, and storage. Humanity responds accordingly: in spring, liver wood flourishes; in summer, heart fire thrives; in late summer, spleen earth nurtures; in autumn, lung metal descends with austerity; in winter, kidney water stores deeply. The five elements generate and restrain each other (wood generates fire, fire generates earth, earth generates metal, metal generates water, water generates wood), forming a closed-loop cycle; mutual restraint provides balance (wood restrains earth, earth restrains water, etc.), preventing imbalance.
 
-This simple formula represents the heartbeat of the cosmos.
+The text further expounds using heavenly stems and earthly branches: the ten heavenly stems match the five elements, the twelve earthly branches record months, combining into the sixty Jiazi great cycle (a sixty-year rotation). The twenty-four solar terms refine the annual rhythm—Beginning of Spring, Rain Water, up to Major Cold and Minor Cold, each fifteen days marking a transition, precisely corresponding to yin-yang shifts. The human body’s five zang and six fu organs, qi, blood, and fluids all wax and wane with this cycle: “In spring the pulse is wiry, in summer flooding, in autumn floating, in winter deep.” Compliance brings health; violation breeds illness, as “humans are born of heaven and earth’s qi and completed by the laws of the four seasons.”
 
-Where:
+This four-seasons-and-five-elements periodicity is not merely temporal rhythm but also spatial order: East wood, South fire, Central earth, West metal, North water; the five directions correspond to the five elements, constituting the harmony of heaven and earth’s orientations. Readers might consider: if we model the five elements’ operations with sine functions (superposition of five different frequencies), we can see the unified rhythm of climate, phenology, and human physiology—this is precisely the mathematical expression of “correspondence between heaven and humanity,” inspiring modern health cultivation: nurture the liver in spring, the heart in summer, without violating the cycles, and one receives heaven’s protection.
 
-- **A** = amplitude — the height or strength of the wave  
-- **T** = period — how long it takes to complete one full cycle  
-- **Φ** = phase — where the wave starts in its cycle  
-- **C** = baseline — the balance point around which the wave oscillates
+### The *Supreme Ultimate Treatise on the World*: The Grand Framework of Yuan-Hui-Yun-Shi and the Sixty-Four Hexagrams
 
-Together, these symbols describe how all natural rhythms — from a heartbeat to the orbit of planets — can be measured as waves.
+Shao Yong’s *Huangji Jingshi* of the Northern Song Dynasty extends periodicity to cosmic scales, constructing the “yuan, hui, yun, shi” system based on prior-heaven numerology. One yuan is 129,600 years, a complete cycle of heaven and earth, containing twelve hui (each 10,800 years), 360 yun (each 360 years), and 4,320 shi (each 30 years). These are nested layers, akin to multiple frequencies nested in sine functions, revealing the universe’s grand cycle from birth to extinction and rebirth.
 
-***
+The core relies on the *Book of Changes*’ sixty-four hexagrams: prior-heaven eight trigrams fix orientations (Qian south, Kun north, etc.), and the sixty-four hexagrams evolve time. Each hexagram governs a specific period, with hexagram changes (line movements) corresponding to rises and falls. The text excludes the four upright hexagrams Qian, Kun, Kan, and Li, using the remaining sixty to match the sixty Jiazi, precisely deducing historical affairs. Yin-yang bifurcation is fundamental; the four images (Taiyin, Taiyang, Shaoyin, Shaoyang) generate the four seasons; the eight trigrams unify the eight directions, extending to ten heavenly stems, twelve earthly branches, twenty-four solar terms, up to the sixty-four hexagrams exhausting the Dao of Heaven.
 
-## ☯️ Chapter 1: Yin and Yang (T = 2) — The Breath of the Cosmos
+Shao Yong views history through “yuan-hui-yun-shi”: every 360 years or larger cycles bring major shifts in fortune, with dynastic changes and civilisational rises and falls all following trajectories. This periodicity encompasses not only time but also space—the eight trigrams define southeast, northwest, northeast, southwest directions; the flow of hexagram qi is like a compass cycle. Readers, if corresponding sine functions to each number (period \( T=2 \) for yin-yang opposition, \( T=4 \) for four images, \( T=5 \) for five elements cycle like pentagram, \( T=8 \) for eight trigrams, \( T=10 \) for heavenly stems, \( T=12 \) for earthly branches, \( T=24 \) for solar terms, \( T=64 \) for hexagram count), will see how composite functions simulate the universe’s nesting: low-frequency yuan-hui as historical long waves, high-frequency day-hour as daily microwaves, superimposed to form the complete celestial panorama.
 
-The most basic rhythm of existence is the balance of two forces:  
-**Yang** (expanding, bright, active) and **Yin** (contracting, dark, resting).
+### Unification of Space and Time: Periodicity Permeates Ancient and Modern Wisdom
 
-$$
-y = A \sin\left(\frac{2\pi}{2}x\right)
-$$
+Periodicity is not solely temporal but also spatial law. In time, years, months, days, and hours are layered inclusions (like multi-harmonic waves in sine); in space, southeast-northwest and four dimensions and eight directions cycle endlessly. The five elements’ orientations and eight trigrams’ positions are all defined by periodic numbers: the four directions correspond to the four seasons, with seasonal rotation being spatial revolution; the five elements and five directions cycle, precisely like the pentagram’s periodic recurrence. The *Yellow Emperor’s Inner Canon*’s “heaven has four seasons and five elements” and the *Supreme Ultimate Treatise on the World*’s “hexagrams fix orientations and temporal sequences” jointly reveal: space and time are originally one yuan, with periodicity as its manifestation.
 
-- When $$y > 0$$: it represents **Yang** — movement, daytime, warmth.  
-- When $$y < 0$$: it represents **Yin** — stillness, night, cold.
+Composite periodicity reveals even greater subtlety: sine superposition simulates the five运 six气 (five elements’ operations plus six qi hosts and guests), or hexagram derivations (composites of sixty-four hexagrams). Natural climate changes, human bodily rhythms, and historical dynasties are all such composite waveforms—seemingly disordered yet rigorously predictable. Modern science’s wave functions and oscillation theories are gradually corroborating the ancient philosophers’ insights: periodicity not only describes but also serves as the key to prediction.
 
-| Phase | Angle θ | Meaning |
-|--------|----------|----------|
-| Yang | $$0 \times \frac{2\pi}{2}$$ | Rising, active, bright |
-| Yin | $$1 \times \frac{2\pi}{2}$$ | Settling, resting, dark |
+### Inspiration and Exploration: Aligning with Periodicity to Achieve Heaven-Human Unity
 
-One full Yin–Yang cycle is the universe’s simplest breath — expanding and then returning.
+Understanding the principle of periodicity is not for idle talk but for practice. The *Yellow Emperor’s Inner Canon* teaches “nurture yang in spring and summer, yin in autumn and winter”; the *Supreme Ultimate Treatise on the World* guides observing hexagrams to know fortune and complying with heaven to respond to humanity. Modern people can use sine thinking to examine life: does the biological clock align with the day-night cycle? Does health cultivation follow the four seasons and five elements? Does historical perspective perceive the long waves of yuan-hui? Even spatial layouts—home orientations, urban planning—can be harmonised according to eight-trigram directions.
 
-***
-
-## 🔶 Chapter 2: The Four Symbols (T = 4) — Refining Yin and Yang
-
-When Yin and Yang are divided once more, we obtain the **Four Symbols**, representing the four dynamic stages of change.
-
-$$
-y = A \sin\left(\frac{2\pi}{4}x\right)
-$$
-
-| Symbol | Phase (θ) | Description | Example |
-|---------|------------|--------------|----------|
-| Lesser Yang | $$0×2\pi/4$$ | Growth begins | Morning light |
-| Greater Yang | $$1×2\pi/4$$ | Full expansion | Noon sun |
-| Lesser Yin | $$2×2\pi/4$$ | Declining light | Sunset |
-| Greater Yin | $$3×2\pi/4$$ | Deep rest | Midnight calm |
-
-Just like the four times of day, these stages express the natural rhythm of energy through rise and fall.
-
-***
-
-## 🪵🔥🌏⚙💧 Chapter 3: The Five Elements (T = 5) — The Life Cycle of Energy
-
-The **Five Elements** describe nature’s five transforming states: Wood, Fire, Earth, Metal, and Water.
-
-$$
-y = A \sin\left(\frac{2\pi}{5}x\right)
-$$
-
-| Element | Phase θ | Character | Analogy |
-|----------|----------|------------|----------|
-| Wood | $$0×2\pi/5$$ | Growth | Springtime sprouting |
-| Fire | $$1×2\pi/5$$ | Energy peak | The heat of summer |
-| Earth | $$3×2\pi/5$$ | Stability | Midsummer balance |
-| Metal | $$4×2\pi/5$$ | Contraction | Autumn harvest |
-| Water | $$5×2\pi/5$$ | Rest | Winter dormancy |
-
-The Five Elements form a never-ending circle of transformation:  
-**Wood → Fire → Earth → Metal → Water → Wood...**
-
-***
-
-## 🧮 Chapter 4: The Eight Trigrams (T = 8) — Eight Patterns of Nature
-
-The **Eight Trigrams** extend the logic of Yin and Yang into eight manifestations of movement, each representing a natural pattern.
-
-$$
-y = A \sin\left(\frac{2\pi}{8}x\right)
-$$
-
-| Trigram | Phase θ | Natural Image | Meaning |
-|----------|----------|----------------|----------|
-| Zhen | $$0×2\pi/8$$ | Thunder | Awakening energy |
-| Li | $$1×2\pi/8$$ | Fire | Illumination |
-| Dui | $$2×2\pi/8$$ | Lake | Joy, softness |
-| Qian | $$3×2\pi/8$$ | Heaven | Strength, motion |
-| Xun | $$4×2\pi/8$$ | Wind | Penetration |
-| Kan | $$5×2\pi/8$$ | Water | Danger, depth |
-| Gen | $$6×2\pi/8$$ | Mountain | Stillness |
-| Kun | $$7×2\pi/8$$ | Earth | Receptivity |
-
-The Eight Trigrams represent nature’s eight “wave frames” — the fundamental patterns of transformation.
-
-***
-
-## ⚙️ Chapter 5: The Ten Heavenly Stems (T = 10) — The Cycle of Cosmic Energy
-
-The **Ten Heavenly Stems** describe ten repeating phases of energetic evolution, from birth to return.
-
-$$
-y = A \sin\left(\frac{2\pi}{10}x\right)
-$$
-
-| Stem | Phase θ | Description |
-|------|-----------|--------------|
-| Jia | $$0×2\pi/10$$ | Emergence |
-| Yi | $$1×2\pi/10$$ | Early growth |
-| Bing | $$2×2\pi/10$$ | Peak power |
-| Ding | $$3×2\pi/10$$ | Full strength |
-| Wu | $$4×2\pi/10$$ | Equilibrium |
-| Ji | $$5×2\pi/10$$ | Transition |
-| Geng | $$6×2\pi/10$$ | Contraction |
-| Xin | $$7×2\pi/10$$ | Decline |
-| Ren | $$8×2\pi/10$$ | Dormancy |
-| Gui | $$9×2\pi/10$$ | Return and renewal |
-
-Ten stages of energy form one great temporal wave.
-
-***
-
-## 🕰️ Chapter 6: The Twelve Earthly Branches (T = 12) — The Seasonal Circle
-
-The **Twelve Earthly Branches** describe the rhythm of the Earth’s yearly cycle, divided into twelve segments.
-
-$$
-y = A \sin\left(\frac{2\pi}{12}x\right)
-$$
-
-| Branch | Phase (θ) | Month | Meaning |
-|:--------|:-----------:|:--------|:-----------|
-| Yin | $$0×2\pi/12$$ | February | Awakening |
-| Mao | $$1×2\pi/12$$ | March | Full growth |
-| Chen | $$2×2\pi/12$$ | April | Transition |
-| Si | $$3×2\pi/12$$ | May | Heat begins |
-| Wu | $$4×2\pi/12$$ | June | Midsummer |
-| Wei | $$5×2\pi/12$$ | July | Balance |
-| Shen | $$6×2\pi/12$$ | August | Cooling |
-| You | $$7×2\pi/12$$ | September | Harvest |
-| Xu | $$8×2\pi/12$$ | October | Decline |
-| Hai | $$9×2\pi/12$$ | November | Dormant Yin |
-| Zi | $$10×2\pi/12$$ | December | Yin to Yang |
-| Chou | $$11×2\pi/12$$ | January | Concealment |
-
-The Earth’s orbit thus becomes a complete 12-step time wave — the pulse of seasons.
-
-***
-
-## 🌞 Chapter 7: The 24 Solar Terms (T = 24) — Earth’s Orbital Rhythm
-
-The **24 Solar Terms** divide the Earth’s path around the Sun into 24 precise stages.
-
-$$
-y = A \sin\left(\frac{2\pi}{24}x\right)
-$$
-
-Each point marks a shift in sunlight and temperature.  
-In this view, the year is a smooth wave of solar energy changing continuously across the sky.
-
-***
-
-## 🪐 Chapter 8: The Sixty Jiazi (T = 60) — Time and Space in Harmony
-
-The Heavenly Stems (T = 10) and Earthly Branches (T = 12) combine into a **60-phase** cycle:
-
-$$
-y = A \sin\left(\frac{2\pi}{60}x\right)
-$$
-
-This is the **Jiazi cycle**, the minimal common period of 10 and 12.  
-It symbolises time and space weaving into one great pattern — a full revolution of cosmic time.
-
-***
-
-## 🧩 Chapter 9: The Sixty-Four Hexagrams (T = 64) — The Spectrum of Universal Change
-
-By pairing the Eight Trigrams, ancient thinkers created **64 Hexagrams**, each a unique moment in the cosmic wave.
-
-$$
-y = A \sin\left(\frac{2\pi}{64}x\right)
-$$
-
-Each Hexagram corresponds to one “frame” of the universe’s continuous motion.  
-Together they form the complete harmonic sequence of existence — the total rhythm of change.
-
-***
-
-## 🔮 Chapter 10: The Mathematical Relationships of Nature
-
-Within each cyclic system, relationships arise from **phase differences** between two points on the same wave.
-
-| Relation | Mathematical Definition | Concept |
-|-----------|--------------------------|----------|
-| **Generating (Sheng)** | Adjacent or $$kT$$-separated points | One phase giving rise to the next |
-| **Harmonising (He)** | Equal derivatives, same slope | Resonance and synchronisation |
-| **Controlling (Ke)** | Phase difference of $$(2k+1)\times(T/2)$$, equal derivative | Opposite yet balancing energies |
-
-General similarity between two cycles is defined as:
-
-$$
-similarity = e^{ -\left| \int (f' - g')dx + \int (f - g)dx \right| }
-$$
-
-This compares both trend (derivative) and energy (function value) to measure harmony.
-
-***
-
-## 🌈 Conclusion: Harmony Is Phase Alignment
-
-The universe is not chaos.  
-It is a **symphony of waves**, each moving at its own rhythm yet contributing to the same grand harmony.
-
-Through cycles — Yin and Yang, the Four Symbols, the Five Elements, the Eight Trigrams, the Ten Stems, the Twelve Branches, and beyond — the same mathematics appears again and again.
-
-> **To understand the cosmos is to understand the wave.**  
-> **To live in harmony is to move in tune with its phase.**
-
-***
-
-Would you like me to produce a visual diagram (for example, a circular “Cycle Map” showing how Yin–Yang expands into the Four Symbols, Eight Trigrams, and Sixty-Four Hexagrams)? It would make the README much easier for readers to grasp visually.
-
+Readers, take this as a guide: select a periodic number, imagine its sine curve; then superimpose another, comprehend the beauty of composites; finally return to the classics to verify the consistency of ancient and modern. Periodicity is the vein of the Dao; compliance brings prosperity, violation brings decline. Exploration is endless, reflection ceaseless: is the universe an eternal sine? How can humanity dance in harmony with this rhythm? Only through deep immersion can one grasp the ultimate realm of natural philosophy—heaven and humanity united, periodicity everlasting.
