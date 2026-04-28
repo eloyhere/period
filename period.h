@@ -590,35 +590,3 @@ public:
 };
 
 } // namespace neuron
-
-// ===================== 主函数 =====================
-int main()
-{
-    using namespace neuron;
-    const double omega = 2.0 * M_PI / 8.0;
-
-    ConversationProcessor cp(4, omega);
-
-    std::vector<std::string> words = {
-        "你好", "再见", "天气", "晴", "雨", "编程", "喜欢", "讨厌"
-    };
-    for (auto& w : words)
-    {
-        Layer l(4, omega);
-        for (size_t d = 0; d < 4; ++d)
-            l[d] = Neuron::random(omega);
-        cp.set_embedding(w, l);
-    }
-
-    cp.train_dialog_set({
-        {"你好", "再见"},
-        {"天气", "晴"},
-        {"编程", "喜欢"}
-    }, 0.05, 200);
-
-    std::cout << "你好 → " << cp.process("你好") << std::endl;
-    std::cout << "天气 → " << cp.process("天气") << std::endl;
-    std::cout << "编程 → " << cp.process("编程") << std::endl;
-
-    return 0;
-}
