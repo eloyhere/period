@@ -1,36 +1,26 @@
-#include <complex>
-#include <cmath>
-#include <iostream>
 #include <vector>
+#include <cmath>
 #include <random>
-#include <stdexcept>
-#include <numeric>
-#include <algorithm>
-#include <limits>
-#include <unordered_map>
+#include <complex>
 #include <string>
+#include <iostream>
 #include <sstream>
-#include <memory>
-#include <functional>
-
-namespace neuron
+#include <unordered_map>
+namespace period
 {
-
-// ---------- 辅助函数 ----------
 inline double fix(double value, double epsilon = 1e-12)
 {
     return (std::abs(value) < epsilon) ? 0.0 : value;
 }
 
-inline std::complex<double> fix(const std::complex<double>& z, double epsilon = 1e-12)
+inline std::complex<double> fix(const std::complex<double> &z, double epsilon = 1e-12)
 {
     return {fix(z.real(), epsilon), fix(z.imag(), epsilon)};
 }
 
-// ===================== Neuron =====================
 class Neuron
 {
-public:
+  public:
     std::complex<double> z;
     double omega;
     double offset;
@@ -38,7 +28,7 @@ public:
     Neuron(double amplitude = 1.0, double omega = 1.0, double phi = 0.0, double offset = 0.0)
         : z(std::polar(amplitude, phi)), omega(omega), offset(offset) {}
 
-    explicit Neuron(const std::complex<double>& state,
+    explicit Neuron(const std::complex<double> &state,
                     double omega = 1.0, double offset = 0.0)
         : z(state), omega(omega), offset(offset) {}
 
@@ -50,92 +40,99 @@ public:
     void setAmplitude(double a) { z = std::polar(a, phi()); }
     void setPhi(double p) { z = std::polar(amplitude(), p); }
 
-    Neuron bind(const Neuron& other) const
+    Neuron operator*(const Neuron &o) const
     {
-        return Neuron(z * other.z, omega, offset + other.offset);
+        return Neuron(z * o.z, omega, offset + o.offset);
     }
 
-    Neuron unbind(const Neuron& other) const
+    Neuron operator/(const Neuron &o) const
     {
-        if (other.amplitude() == 0.0)
-            throw std::domain_error("Unbind by zero");
-        return Neuron(z / other.z, omega, offset - other.offset);
+        if (o.amplitude() == 0.0)
+            throw std::domain_error("Division by zero-amplitude neuron");
+        return Neuron(z / o.z, omega, offset - o.offset);
     }
 
-    double sine(double x) const
-    {
-        return fix(amplitude() * std::sin(omega * x + phi()) + offset);
-    }
+    Neuron operator*(double k) const { return Neuron(z * k, omega, offset * k); }
+    Neuron operator/(double k) const { return Neuron(z / k, omega, offset / k); }
+    friend Neuron operator*(double k, const Neuron &n) { return n * k; }
 
-    double cosine(double x) const
-    {
-        return fix(amplitude() * std::cos(omega * x + phi()) + offset);
-    }
+    Neuron operator+(const Neuron &o) const { return Neuron(z + o.z, omega, offset + o.offset); }
+    Neuron operator-(const Neuron &o) const { return Neuron(z - o.z, omega, offset - o.offset); }
 
-    std::complex<double> gradient() const
-    {
-        return fix(std::complex<double>(-imag(), real()));
-    }
+    Neuron operator-() const { return Neuron(-z, omega, -offset); }
+    Neuron operator~() const { return Neuron(std::conj(z), omega, offset); }
 
-    double similarity(const Neuron& other) const
+    double sine(double x) const { return fix(amplitude() * std::sin(omega * x + phi()) + offset); }
+    double cosine(double x) const { return fix(amplitude() * std::cos(omega * x + phi()) + offset); }
+
+    std::complex<double> gradient() const { return fix(std::complex<double>(-imag(), real())); }
+
+    double similarity(const Neuron &other) const
     {
-        if (amplitude() == 0.0 || other.amplitude() == 0.0) return 0.0;
+        if (amplitude() == 0.0 || other.amplitude() == 0.0)
+            return 0.0;
         return (std::conj(z) * other.z).real() / (amplitude() * other.amplitude());
     }
 
-    double distance(const Neuron& other) const
+    double distance(const Neuron &other) const
     {
-        if (amplitude() == 0.0 || other.amplitude() == 0.0) return 0.0;
+        if (amplitude() == 0.0 || other.amplitude() == 0.0)
+            return 0.0;
         return (std::conj(z) * other.z).imag() / (amplitude() * other.amplitude());
     }
 
-    void update(double lr, const std::complex<double>& grad_z)
-    {
-        z -= lr * grad_z;
-    }
-
-    double loss(const Neuron& target) const
+    double loss(const Neuron &target) const
     {
         std::complex<double> diff = z - target.z;
         return fix(std::norm(diff));
     }
 
-    // 运算符
-    Neuron operator+(const Neuron& o) const { return Neuron(z + o.z, omega, offset + o.offset); }
-    Neuron operator-(const Neuron& o) const { return Neuron(z - o.z, omega, offset - o.offset); }
-    Neuron operator*(const Neuron& o) const { return bind(o); }
-    Neuron operator/(const Neuron& o) const { return unbind(o); }
-    Neuron operator*(double k) const { return Neuron(z * k, omega, offset * k); }
-    Neuron operator/(double k) const { return Neuron(z / k, omega, offset / k); }
-    friend Neuron operator*(double k, const Neuron& n) { return n * k; }
-    Neuron operator-() const { return Neuron(-z, omega, -offset); }
-    Neuron operator~() const { return Neuron(std::conj(z), omega, offset); }
-    bool operator==(const Neuron& o) const { return z == o.z && omega == o.omega && offset == o.offset; }
-    bool operator!=(const Neuron& o) const { return !(*this == o); }
-    bool operator<(const Neuron& o) const { return amplitude() < o.amplitude(); }
-    bool operator>(const Neuron& o) const { return amplitude() > o.amplitude(); }
-    bool operator<=(const Neuron& o) const { return amplitude() <= o.amplitude(); }
-    bool operator>=(const Neuron& o) const { return amplitude() >= o.amplitude(); }
-
-    friend std::ostream& operator<<(std::ostream& os, const Neuron& n)
-    {
-        os << "amplitude: " << n.amplitude() << ", phi: " << n.phi()
-           << ", omega: " << n.omega << ", offset" << n.offset << "]";
-        return os;
-    }
+    void update(double lr, const std::complex<double> &grad_z) { z -= lr * grad_z; }
 
     Neuron conjugate() const { return Neuron(std::conj(z), omega, offset); }
     Neuron inverse() const { return Neuron(1.0 / z, omega, offset); }
-    Neuron normalize() const { double a = amplitude(); return a == 0.0 ? *this : Neuron(z / a, omega, offset); }
+    Neuron normalize() const
+    {
+        double a = amplitude();
+        return a == 0.0 ? *this : Neuron(z / a, omega, offset);
+    }
     double magnitude() const { return amplitude(); }
     double phase() const { return phi(); }
 
-    Neuron sigmoid() const { double a = amplitude(); double s = 1.0/(1.0+std::exp(-a)); return Neuron(s, omega, phi(), offset); }
-    Neuron tanh() const { double a = amplitude(); double t = std::tanh(a); return Neuron(t, omega, phi(), offset); }
-    Neuron relu() const { double a = amplitude(); return Neuron(a > 0.0 ? a : 0.0, omega, phi(), offset); }
+    Neuron sigmoid() const
+    {
+        double a = amplitude();
+        double s = 1.0 / (1.0 + std::exp(-a));
+        return Neuron(s, omega, phi(), offset);
+    }
+    Neuron tanh() const
+    {
+        double a = amplitude();
+        double t = std::tanh(a);
+        return Neuron(t, omega, phi(), offset);
+    }
+    Neuron relu() const
+    {
+        double a = amplitude();
+        return Neuron(a > 0.0 ? a : 0.0, omega, phi(), offset);
+    }
     Neuron exp() const { return Neuron(std::exp(z), omega, offset); }
     Neuron log() const { return Neuron(std::log(z), omega, offset); }
     Neuron pow(double exponent) const { return Neuron(std::pow(z, exponent), omega, offset); }
+
+    bool operator==(const Neuron &o) const { return z == o.z && omega == o.omega && offset == o.offset; }
+    bool operator!=(const Neuron &o) const { return !(*this == o); }
+    bool operator<(const Neuron &o) const { return amplitude() < o.amplitude(); }
+    bool operator>(const Neuron &o) const { return amplitude() > o.amplitude(); }
+    bool operator<=(const Neuron &o) const { return amplitude() <= o.amplitude(); }
+    bool operator>=(const Neuron &o) const { return amplitude() >= o.amplitude(); }
+
+    friend std::ostream &operator<<(std::ostream &os, const Neuron &n)
+    {
+        os << "[amplitude: " << n.amplitude() << ", phi: " << n.phi()
+           << ", omega: " << n.omega << ", offset: " << n.offset << "]";
+        return os;
+    }
 
     static Neuron random(double omega = 1.0, double offset = 0.0)
     {
@@ -146,447 +143,596 @@ public:
     }
 };
 
-// ===================== Layer =====================
-class Layer
-{
+class Layer {
 public:
     std::vector<Neuron> neurons;
+    std::vector<Neuron> weights;
 
     Layer() = default;
 
-    Layer(size_t size, double default_omega = 1.0)
-    {
+    Layer(size_t size, double default_omega = 1.0, bool init_weights = true) {
         neurons.reserve(size);
         for (size_t i = 0; i < size; ++i)
             neurons.emplace_back(1.0, default_omega, 0.0, 0.0);
+        if (init_weights) {
+            weights.reserve(size);
+            for (size_t i = 0; i < size; ++i)
+                weights.emplace_back(Neuron::random(default_omega, 0.0));
+        }
     }
 
     explicit Layer(const std::vector<Neuron>& n) : neurons(n) {}
 
-    size_t size() const { return neurons.size(); }
+    Layer(const std::vector<Neuron>& n, const std::vector<Neuron>& w)
+        : neurons(n), weights(w) {}
 
+    size_t size() const { return neurons.size(); }
     Neuron& operator[](size_t i) { return neurons[i]; }
     const Neuron& operator[](size_t i) const { return neurons[i]; }
 
-    Layer bind(const Layer& other) const
-    {
-        if (size() != other.size()) throw std::domain_error("Layer size mismatch for bind");
-        Layer result;
-        result.neurons.reserve(size());
-        for (size_t i = 0; i < size(); ++i)
-            result.neurons.push_back(neurons[i].bind(other.neurons[i]));
+    Layer dft() const {
+        size_t N = size();
+        Layer freqLayer;
+        freqLayer.neurons.reserve(N);
+        const double twoPi = 2.0 * M_PI;
+        for (size_t k = 0; k < N; ++k) {
+            std::complex<double> sum(0.0, 0.0);
+            for (size_t n = 0; n < N; ++n) {
+                double angle = -twoPi * k * n / N;
+                sum += neurons[n].z * std::polar(1.0, angle);
+            }
+            double freqOmega = (k <= N/2) ? (twoPi * k / N) : (twoPi * (k - N) / N);
+            freqLayer.neurons.emplace_back(sum, freqOmega, 0.0);
+        }
+        return freqLayer;
+    }
+
+    Layer idft() const {
+        size_t N = size();
+        Layer timeLayer;
+        timeLayer.neurons.reserve(N);
+        const double twoPi = 2.0 * M_PI;
+        for (size_t n = 0; n < N; ++n) {
+            std::complex<double> sum(0.0, 0.0);
+            for (size_t k = 0; k < N; ++k) {
+                double angle = twoPi * k * n / N;
+                sum += neurons[k].z * std::polar(1.0, angle);
+            }
+            sum /= static_cast<double>(N);
+            timeLayer.neurons.emplace_back(sum, 1.0, 0.0);
+        }
+        return timeLayer;
+    }
+
+    Layer fft() const {
+        size_t N = size();
+        if (N == 0 || (N & (N - 1)) != 0)
+            throw std::invalid_argument("FFT requires size to be a power of two.");
+        if (N == 1) {
+            Layer freq;
+            freq.neurons.push_back(neurons[0]);
+            return freq;
+        }
+        Layer even, odd;
+        for (size_t i = 0; i < N; i += 2) {
+            even.neurons.push_back(neurons[i]);
+            odd.neurons.push_back(neurons[i + 1]);
+        }
+        Layer evenF = even.fft();
+        Layer oddF = odd.fft();
+        Layer result(N, 1.0, false);
+        for (size_t k = 0; k < N / 2; ++k) {
+            std::complex<double> twiddle = std::polar(1.0, -2.0 * M_PI * k / N);
+            std::complex<double> t = twiddle * oddF[k].z;
+            result.neurons[k] = Neuron(evenF[k].z + t, 1.0, 0.0);
+            result.neurons[k + N / 2] = Neuron(evenF[k].z - t, 1.0, 0.0);
+        }
         return result;
     }
 
-    Layer unbind(const Layer& other) const
-    {
-        if (size() != other.size()) throw std::domain_error("Layer size mismatch for unbind");
-        Layer result;
-        result.neurons.reserve(size());
-        for (size_t i = 0; i < size(); ++i)
-            result.neurons.push_back(neurons[i].unbind(other.neurons[i]));
-        return result;
+    Layer ifft() const {
+        size_t N = size();
+        if (N == 0 || (N & (N - 1)) != 0)
+            throw std::invalid_argument("IFFT requires size to be a power of two.");
+        Layer conjFreq;
+        for (size_t k = 0; k < N; ++k)
+            conjFreq.neurons.push_back(~neurons[k]);
+        Layer time = conjFreq.fft();
+        for (size_t n = 0; n < N; ++n) {
+            time.neurons[n].z = std::conj(time.neurons[n].z) / static_cast<double>(N);
+        }
+        return time;
     }
 
-    Layer operator+(const Layer& o) const {
-        if (size() != o.size()) throw std::domain_error("Size mismatch");
-        Layer res;
-        for (size_t i = 0; i < size(); ++i)
-            res.neurons.push_back(neurons[i] + o.neurons[i]);
-        return res;
+    Layer forward(const Layer& input) const {
+        if (input.size() != weights.size())
+            throw std::domain_error("Input size must match weights size.");
+        Layer freqInput = input.dft();
+        Layer freqOutput(freqInput.size(), 1.0, false);
+        for (size_t i = 0; i < freqInput.size(); ++i) {
+            freqOutput[i] = freqInput[i] * weights[i];
+        }
+        return freqOutput.idft();
     }
 
-    Layer operator-(const Layer& o) const {
-        if (size() != o.size()) throw std::domain_error("Size mismatch");
-        Layer res;
-        for (size_t i = 0; i < size(); ++i)
-            res.neurons.push_back(neurons[i] - o.neurons[i]);
-        return res;
+    std::pair<Layer, Layer> backward(const Layer& grad_output, const Layer& input) const {
+        size_t N = weights.size();
+        if (input.size() != N || grad_output.size() != N)
+            throw std::domain_error("Size mismatch in backward.");
+
+        Layer dZ = grad_output.dft();
+        Layer X = input.dft();
+
+        Layer grad_W(N, 1.0, false);
+        for (size_t k = 0; k < N; ++k) {
+            grad_W[k] = Neuron(dZ[k].z * std::conj(X[k].z), 1.0, 0.0);
+        }
+
+        Layer grad_X_freq(N, 1.0, false);
+        for (size_t k = 0; k < N; ++k) {
+            grad_X_freq[k] = Neuron(std::conj(weights[k].z) * dZ[k].z, 1.0, 0.0);
+        }
+        Layer grad_input = grad_X_freq.idft();
+
+        return {grad_input, grad_W};
     }
 
-    Layer operator*(const Layer& o) const { return bind(o); }
-    Layer operator/(const Layer& o) const { return unbind(o); }
-
-    Layer operator*(double k) const {
-        Layer res;
-        for (auto& n : neurons) res.neurons.push_back(n * k);
-        return res;
+    Layer gradient() const {
+        Layer grad(neurons.size(), 1.0, false);
+        for (size_t i = 0; i < neurons.size(); ++i) {
+            grad.neurons[i] = Neuron(neurons[i].gradient(), neurons[i].omega, 0.0);
+        }
+        return grad;
     }
 
-    Layer operator/(double k) const {
-        Layer res;
-        for (auto& n : neurons) res.neurons.push_back(n / k);
-        return res;
-    }
-
-    friend Layer operator*(double k, const Layer& l) { return l * k; }
-
-    Neuron weighted_sum(const std::vector<double>& weights) const
-    {
-        if (weights.size() != size()) throw std::domain_error("Weight size mismatch");
-        std::complex<double> sum(0.0, 0.0);
-        double omega = neurons.empty() ? 1.0 : neurons[0].omega;
-        double offset = 0.0;
+    double similarity(const Layer& other) const {
+        if (size() != other.size() || size() == 0) return 0.0;
+        double sum = 0.0, wsum = 0.0;
         for (size_t i = 0; i < size(); ++i) {
-            sum += weights[i] * neurons[i].z;
-            offset += weights[i] * neurons[i].offset;
-        }
-        double total_w = std::accumulate(weights.begin(), weights.end(), 0.0);
-        if (total_w == 0.0) return Neuron();
-        return Neuron(sum / total_w, omega, offset / total_w);
-    }
-
-    double similarity(const Layer& other) const
-    {
-        if (size() != other.size() || size() == 0) return 0.0;
-        double sum = 0.0, wsum = 0.0;
-        for (size_t i = 0; i < size(); ++i)
-        {
-            double ampA = neurons[i].amplitude(), ampB = other.neurons[i].amplitude();
+            double ampA = neurons[i].amplitude(), ampB = other[i].amplitude();
             if (ampA == 0.0 || ampB == 0.0) continue;
-            double cos_sim = neurons[i].similarity(other.neurons[i]);
+            double sim = neurons[i].similarity(other[i]);
             double w = ampA * ampB;
-            sum += cos_sim * w;
+            sum += sim * w;
             wsum += w;
         }
-        return wsum == 0.0 ? 0.0 : sum / wsum;
+        return (wsum == 0.0) ? 0.0 : (sum / wsum);
     }
 
-    double distance(const Layer& other) const
-    {
+    double distance(const Layer& other) const {
         if (size() != other.size() || size() == 0) return 0.0;
         double sum = 0.0, wsum = 0.0;
-        for (size_t i = 0; i < size(); ++i)
-        {
-            double ampA = neurons[i].amplitude(), ampB = other.neurons[i].amplitude();
+        for (size_t i = 0; i < size(); ++i) {
+            double ampA = neurons[i].amplitude(), ampB = other[i].amplitude();
             if (ampA == 0.0 || ampB == 0.0) continue;
-            double sin_dist = neurons[i].distance(other.neurons[i]);
+            double dist = neurons[i].distance(other[i]);
             double w = ampA * ampB;
-            sum += sin_dist * w;
+            sum += dist * w;
             wsum += w;
         }
-        return wsum == 0.0 ? 0.0 : sum / wsum;
+        return (wsum == 0.0) ? 0.0 : (sum / wsum);
     }
 
-    double loss(const Layer& other) const
-    {
-        if (size() != other.size()) return 1e9;
+    double loss(const Layer& target) const {
+        if (size() != target.size()) return 1e9;
         double total = 0.0;
         for (size_t i = 0; i < size(); ++i)
-            total += neurons[i].loss(other.neurons[i]);
+            total += neurons[i].loss(target[i]);
         return total / size();
     }
 
-    void fft(bool inverse = false)
-    {
-        size_t N = size();
-        if (N == 0) return;
-        std::vector<std::complex<double>> signal(N);
-        for (size_t i = 0; i < N; ++i) signal[i] = neurons[i].z;
-        double sign = inverse ? 1.0 : -1.0;
-        std::vector<std::complex<double>> result(N, {0.0, 0.0});
-        for (size_t k = 0; k < N; ++k)
-        {
-            std::complex<double> sum(0.0, 0.0);
-            for (size_t n = 0; n < N; ++n)
-            {
-                double angle = sign * 2.0 * M_PI * k * n / N;
-                sum += signal[n] * std::complex<double>(std::cos(angle), std::sin(angle));
-            }
-            if (inverse) sum /= static_cast<double>(N);
-            result[k] = sum;
-        }
-        for (size_t i = 0; i < N; ++i) neurons[i].z = result[i];
+    Layer operator+(const Layer& o) const {
+        checkSize(o);
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] + o[i]);
+        return res;
+    }
+    Layer operator-(const Layer& o) const {
+        checkSize(o);
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] - o[i]);
+        return res;
+    }
+    Layer operator*(const Layer& o) const {
+        checkSize(o);
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] * o[i]);
+        return res;
+    }
+    Layer operator/(const Layer& o) const {
+        checkSize(o);
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] / o[i]);
+        return res;
+    }
+    Layer operator*(double k) const {
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] * k);
+        return res;
+    }
+    Layer operator/(double k) const {
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(neurons[i] / k);
+        return res;
+    }
+    friend Layer operator*(double k, const Layer& l) { return l * k; }
+
+    Layer operator-() const {
+        Layer res;
+        for (size_t i = 0; i < size(); ++i)
+            res.neurons.push_back(-neurons[i]);
+        return res;
     }
 
-    Layer sigmoid() const { Layer res; for (auto& n : neurons) res.neurons.push_back(n.sigmoid()); return res; }
-    Layer tanh() const    { Layer res; for (auto& n : neurons) res.neurons.push_back(n.tanh());    return res; }
-    Layer relu() const    { Layer res; for (auto& n : neurons) res.neurons.push_back(n.relu());    return res; }
-    Layer normalize() const { Layer res; for (auto& n : neurons) res.neurons.push_back(n.normalize()); return res; }
+    bool operator==(const Layer& o) const {
+        return size() == o.size() && neurons == o.neurons;
+    }
+    bool operator!=(const Layer& o) const { return !(*this == o); }
 
-    double mean_amplitude() const
-    {
-        if (neurons.empty()) return 0.0;
+    bool operator<(const Layer& o) const {
+        return totalAmplitude() < o.totalAmplitude();
+    }
+    bool operator>(const Layer& o) const {
+        return totalAmplitude() > o.totalAmplitude();
+    }
+    bool operator<=(const Layer& o) const {
+        return totalAmplitude() <= o.totalAmplitude();
+    }
+    bool operator>=(const Layer& o) const {
+        return totalAmplitude() >= o.totalAmplitude();
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Layer& l) {
+        os << "Layer[" << l.size() << " neurons]";
+        return os;
+    }
+
+    double totalAmplitude() const {
         double sum = 0.0;
         for (auto& n : neurons) sum += n.amplitude();
-        return sum / neurons.size();
+        return sum;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Layer& l)
-    {
-        os << "[";
-        for (size_t i = 0; i < l.size(); ++i) {
-            if (i > 0) os << ", ";
-            os << l[i];
-        }
-        os << "]";
-        return os;
+    static Layer random(size_t n, double omega = 1.0, double offset = 0.0) {
+        Layer l;
+        for (size_t i = 0; i < n; ++i)
+            l.neurons.push_back(Neuron::random(omega, offset));
+        return l;
+    }
+
+    void updateWeights(double lr, const Layer& grad_W) {
+        for (size_t i = 0; i < weights.size(); ++i)
+            weights[i].update(lr, grad_W[i].z);
+    }
+
+    void updateNeurons(double lr, const Layer& grad) {
+        for (size_t i = 0; i < neurons.size(); ++i)
+            neurons[i].update(lr, grad[i].z);
+    }
+
+private:
+    void checkSize(const Layer& o) const {
+        if (size() != o.size())
+            throw std::domain_error("Layer size mismatch");
     }
 };
 
-// ===================== Processor 基类 =====================
 template <typename Domain>
-class Processor
-{
+class Processor {
+protected:
+    std::vector<Layer> memory;
+    size_t max_memory;
+    size_t trim_amount;
+    std::vector<Domain> embed;
+
 public:
-    Processor() = default;
+    Processor(size_t max_memory = 100, size_t trim_amount = 5)
+        : max_memory(max_memory), trim_amount(trim_amount) {}
+
     virtual ~Processor() = default;
 
     virtual Layer decode(const Domain& input) const = 0;
     virtual Domain encode(const Layer& output) const = 0;
-    virtual std::vector<Layer> layers() const = 0;
-    virtual void apply(const Domain& input, const Domain& target, double learning_rate) = 0;
 
-    // 联想检索
-    std::vector<Layer> remind(const Layer& query, size_t top_k = 1) const
-    {
-        auto all = layers();
-        if (all.empty() || top_k == 0) return {};
-        std::vector<std::pair<double, Layer>> scored;
-        for (const auto& l : all)
-        {
-            double sim = l.similarity(query);
-            double dist = l.distance(query);
-            double score = sim - std::abs(dist);
-            scored.emplace_back(score, l);
+    std::vector<Layer> remind(const Layer& query, size_t n) const {
+        if (memory.empty() || n == 0) return {};
+        // 将查询变换到频域，以便在频域比较
+        Layer queryFreq = query.dft();
+        std::vector<std::pair<double, size_t>> scores;
+        scores.reserve(memory.size());
+        for (size_t i = 0; i < memory.size(); ++i) {
+            if (query.size() != memory[i].size()) {
+                scores.emplace_back(-1e9, i);
+                continue;
+            }
+            Layer memFreq = memory[i].dft();          // 记忆项也变换到频域
+            double sim = queryFreq.similarity(memFreq);
+            double dist = queryFreq.distance(memFreq);
+            double score = sim - dist;       // 频域综合得分
+            scores.emplace_back(score, i);
         }
-        std::sort(scored.begin(), scored.end(),
-                  [](const auto& a, const auto& b) { return a.first > b.first; });
-        if (top_k > scored.size()) top_k = scored.size();
+        if (n >= memory.size()) {
+            return memory;
+        }
+        std::partial_sort(scores.begin(), scores.begin() + n, scores.end(),
+            [](const auto& a, const auto& b) { return a.first > b.first; });
         std::vector<Layer> result;
-        for (size_t i = 0; i < top_k; ++i) result.push_back(scored[i].second);
+        result.reserve(n);
+        for (size_t i = 0; i < n; ++i)
+            result.push_back(memory[scores[i].second]);
         return result;
     }
 
-    // 推理函数（非虚）：利用记忆优化输入层
-    Layer inference(const Layer& input, size_t top_k = 3) const
-    {
-        auto similar_layers = remind(input, top_k);
-        if (similar_layers.empty()) return input;
-
-        std::vector<double> weights;
-        double total_weight = 0.0;
-        for (const auto& l : similar_layers)
-        {
-            double sim = input.similarity(l);
-            if (sim < 0.0) sim = 0.0;
-            weights.push_back(sim);
-            total_weight += sim;
-        }
-        if (total_weight == 0.0) return input;
-
-        Layer result(input.size(), input[0].omega);
-        for (size_t i = 0; i < result.size(); ++i)
-        {
-            std::complex<double> z_sum(0.0, 0.0);
-            double offset_sum = 0.0;
-            for (size_t k = 0; k < similar_layers.size(); ++k)
-            {
-                double w = weights[k] / total_weight;
-                z_sum += w * similar_layers[k][i].z;
-                offset_sum += w * similar_layers[k][i].offset;
+    void remember(const Layer& layer, size_t n = 1) {
+        memory.push_back(layer);
+        if (memory.size() > max_memory) {
+            size_t trim = std::min(n, memory.size() > 0 ? memory.size() - 1 : 0);
+            if (trim == 0) return;
+            std::vector<std::pair<double, size_t>> scores;
+            scores.reserve(memory.size());
+            for (size_t i = 0; i < memory.size(); ++i) {
+                double sim = layer.similarity(memory[i]);
+                double dist = layer.distance(memory[i]);
+                double score = sim - dist;
+                scores.emplace_back(score, i);
             }
-            result[i].z = z_sum;
-            result[i].offset = offset_sum;
-            result[i].omega = input[i].omega;
+            std::partial_sort(scores.begin(), scores.begin() + trim, scores.end());
+            std::vector<size_t> to_remove;
+            for (size_t i = 0; i < trim; ++i)
+                to_remove.push_back(scores[i].second);
+            std::sort(to_remove.rbegin(), to_remove.rend());
+            for (auto idx : to_remove)
+                memory.erase(memory.begin() + idx);
+        }
+    }
+
+    Layer inference(const Layer& query, size_t top_k = 5, size_t trim_k = 1) {
+        std::vector<Layer> top = remind(query, top_k);
+        Layer result;
+        if (top.empty()) {
+            result = query;
+        } else {
+            // 将所有候选层变换到频域
+            std::vector<Layer> freqTops;
+            freqTops.reserve(top.size());
+            for (const auto& t : top) {
+                freqTops.push_back(t.dft());
+            }
+            // 在频域做平均（保持信号结构）
+            Layer freqAvg = freqTops[0];
+            for (size_t i = 1; i < freqTops.size(); ++i) {
+                freqAvg = freqAvg + freqTops[i];
+            }
+            freqAvg = freqAvg / static_cast<double>(freqTops.size());
+            // 逆变换回时域作为融合结果
+            result = freqAvg.idft();
+        }
+        // 修剪记忆时同样采用频域评分
+        if (trim_k > 0 && !memory.empty()) {
+            std::vector<std::pair<double, size_t>> scores;
+            scores.reserve(memory.size());
+            for (size_t i = 0; i < memory.size(); ++i) {
+                if (query.size() != memory[i].size()) {
+                    scores.emplace_back(-1e9, i);
+                    continue;
+                }
+                Layer memFreq = memory[i].dft();
+                Layer qFreq = query.dft();
+                double sim = qFreq.similarity(memFreq);
+                double dist = qFreq.distance(memFreq);
+                double score = sim - dist;
+                scores.emplace_back(score, i);
+            }
+            size_t remove_cnt = std::min(trim_k, memory.size() > 0 ? memory.size() - 1 : 0);
+            if (remove_cnt > 0) {
+                std::partial_sort(scores.begin(), scores.begin() + remove_cnt, scores.end());
+                std::vector<size_t> to_remove;
+                for (size_t i = 0; i < remove_cnt; ++i)
+                    to_remove.push_back(scores[i].second);
+                std::sort(to_remove.rbegin(), to_remove.rend());
+                for (auto idx : to_remove)
+                    memory.erase(memory.begin() + idx);
+            }
         }
         return result;
     }
 
-    // 训练：批量数据，内部根据损失和相似度调整维度
-    void train(const std::vector<std::pair<Domain, Domain>>& dataset,
-               double learning_rate = 0.01, size_t epochs = 100)
-    {
-        for (size_t e = 0; e < epochs; ++e)
-        {
-            for (auto& pair : dataset)
-                apply(pair.first, pair.second, learning_rate);
-
-            // 每个 epoch 结束后评估一次
-            if (!dataset.empty())
-            {
-                const auto& first = dataset.front();
-                Layer pred = decode(first.first);
-                Layer target = decode(first.second);
-                double loss_val = pred.loss(target);
-                double sim = pred.similarity(target);
-                double dist = pred.distance(target);
-
-                if (should_expand(loss_val, sim, dist))
-                    expand();
-                else if (should_compress(loss_val, sim, dist))
-                    compress();
+    Domain predict(const Layer& layer) {
+        size_t top_k = std::min(size_t(5), memory.size());
+        auto tops = remind(layer, top_k);
+        Layer combined = layer;
+        if (!tops.empty()) {
+            for (auto& t : tops) combined = combined + t;
+            combined = combined / static_cast<double>(1 + tops.size());
+        }
+        Domain best_domain;
+        double best_score = -1e9;
+        for (const auto& d : embed) {
+            Layer emb_layer = decode(d);
+            double sim = combined.similarity(emb_layer);
+            double dist = combined.distance(emb_layer);
+            double score = sim - dist;
+            if (score > best_score) {
+                best_score = score;
+                best_domain = d;
             }
         }
+        Layer query_for_inference = decode(best_domain);
+        Layer final_layer = inference(query_for_inference);
+        return encode(final_layer);
     }
 
-    // 主处理流程：decode -> inference -> predict
-    Domain process(const Domain& input)
-    {
+    Domain process(const Domain& input) {
         Layer current = decode(input);
-        Layer refined = inference(current);
-        return predict(refined);
-    }
-
-    virtual Domain predict(const Layer& output) const
-    {
-        auto best = remind(output, 1);
-        if (best.empty()) return encode(output);
-        return encode(best[0]);
-    }
-
-    virtual Domain predict(const Layer& output, double creative) const
-    {
-        auto best = remind(output, 1);
-        if (best.empty()) return encode(output);
-        Domain result = encode(best[0]);
-        double top_sim = output.similarity(best[0]);
-        if (top_sim < creative)
-        {
-            auto top3 = remind(output, 3);
-            std::ostringstream oss;
-            for (size_t i = 0; i < top3.size(); ++i)
-            {
-                if (i > 0) oss << "/";
-                oss << encode(top3[i]);
-            }
-            return oss.str() + "?";
-        }
-        return result;
-    }
-
-    Domain predicate(const Layer& output) { return encode(output); }
-
-protected:
-    virtual void expand() {}
-    virtual void compress() {}
-    virtual bool should_expand(double loss, double sim, double dist) const
-    {
-        return loss > 0.2 && sim < 0.5;
-    }
-    virtual bool should_compress(double loss, double sim, double dist) const
-    {
-        return loss < 0.001 && sim > 0.99;
+        Layer result = inference(current);
+        remember(result, trim_amount);
+        return predict(result);
     }
 };
 
-// ===================== ConversationProcessor =====================
-class ConversationProcessor : public Processor<std::string>
-{
-private:
-    std::unordered_map<std::string, Layer> embeddings;
-    Layer dialog_relation;
-    size_t embedding_dim;
-    double default_omega;
-
-    void expand_all()
-    {
-        ++embedding_dim;
-        for (auto& kv : embeddings)
-            kv.second.neurons.emplace_back(Neuron::random(default_omega));
-        dialog_relation.neurons.emplace_back(Neuron::random(default_omega));
-    }
-
-    void compress_all()
-    {
-        if (embedding_dim <= 1) return;
-        --embedding_dim;
-        for (auto& kv : embeddings)
-            if (!kv.second.neurons.empty()) kv.second.neurons.pop_back();
-        if (!dialog_relation.neurons.empty()) dialog_relation.neurons.pop_back();
-    }
-
-    void expand() override { expand_all(); }
-    void compress() override { compress_all(); }
-
+class TrunkProcessor : public Processor<std::string> {
 public:
-    ConversationProcessor(size_t dim = 4, double omega = 1.0)
-        : embedding_dim(dim), default_omega(omega)
+    std::vector<std::string> trunks;
+
+    TrunkProcessor(size_t max_memory = 100, size_t trim_amount = 5,
+                   size_t embed_dim = 3, double lr = 0.01, size_t epochs = 500)
+        : Processor<std::string>(max_memory, trim_amount)
     {
-        dialog_relation = Layer(dim, omega);
-        for (size_t i = 0; i < dim; ++i)
-            dialog_relation[i] = Neuron::random(omega);
+        trunks = {"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"};
+        // 初始化基类的 embed 列表
+        embed = trunks;
+
+        // 为每个天干创建随机嵌入
+        for (const auto& t : trunks) {
+            Layer layer;
+            layer.neurons.reserve(embed_dim);
+            for (size_t d = 0; d < embed_dim; ++d)
+                layer.neurons.push_back(Neuron::random(1.0, 0.0));
+            trunkLayers[t] = layer;
+        }
+
+        train(lr, epochs);
     }
 
-    void set_embedding(const std::string& word, const Layer& layer)
-    {
-        embeddings[word] = layer;
+    Layer decode(const std::string& input) const override {
+        auto it = trunkLayers.find(input);
+        if (it != trunkLayers.end())
+            return it->second;
+        return Layer();
     }
 
-    // 实现纯虚函数
-    Layer decode(const std::string& input) const override
-    {
-        std::istringstream iss(input);
-        std::string word;
-        std::vector<std::string> words;
-        while (iss >> word) words.push_back(word);
-        if (words.empty()) return Layer(embedding_dim, default_omega);
-        Layer combined = embeddings.at(words[0]);
-        for (size_t i = 1; i < words.size(); ++i)
-            combined = combined.bind(embeddings.at(words[i]));
-        return combined;
-    }
-
-    std::string encode(const Layer& output) const override
-    {
-        if (embeddings.empty()) return "";
-        double best_sim = -std::numeric_limits<double>::max();
-        std::string best_word;
-        for (const auto& kv : embeddings)
-        {
+    std::string encode(const Layer& output) const override {
+        if (output.size() == 0) return "?";
+        double bestScore = -2.0;
+        std::string bestStr = "?";
+        for (const auto& kv : trunkLayers) {
             double sim = output.similarity(kv.second);
-            if (sim > best_sim) { best_sim = sim; best_word = kv.first; }
+            double dist = output.distance(kv.second);
+            double score = sim - std::abs(dist);   // 同时考虑相似度和距离
+            if (score > bestScore) {
+                bestScore = score;
+                bestStr = kv.first;
+            }
         }
-        return best_word;
+        return bestStr;
     }
 
-    std::vector<Layer> layers() const override
-    {
-        std::vector<Layer> res;
-        for (const auto& kv : embeddings) res.push_back(kv.second);
-        return res;
-    }
+private:
+    std::unordered_map<std::string, Layer> trunkLayers;
 
-    void apply(const std::string& input, const std::string& target, double lr) override
-    {
-        if (embeddings.find(input) == embeddings.end() ||
-            embeddings.find(target) == embeddings.end())
-            return;
+    void train(double lr, size_t epochs) {
+        std::vector<std::tuple<std::string, std::string, std::string>> pairs = {
+            {"甲", "己", "己"}, {"乙", "庚", "辛"}, {"丙", "辛", "癸"},
+            {"丁", "壬", "乙"}, {"戊", "癸", "丁"}
+        };
 
-        Layer& Q = embeddings[input];
-        Layer& A = embeddings[target];
+        for (size_t e = 0; e < epochs; ++e) {
+            for (const auto& [a, b, c] : pairs) {
+                Layer& A = trunkLayers[a];
+                Layer& B = trunkLayers[b];
+                Layer& C = trunkLayers[c];
 
-        Layer pred = Q.bind(dialog_relation);
-        for (size_t i = 0; i < pred.size(); ++i)
-        {
-            std::complex<double> diff = pred[i].z - A[i].z;
-            std::complex<double> gradQ = diff * std::conj(dialog_relation[i].z);
-            std::complex<double> gradR = diff * std::conj(Q[i].z);
-            std::complex<double> gradA = diff;
+                Layer bind_ab = A * B;
 
-            Q[i].z -= lr * gradQ;
-            dialog_relation[i].z -= lr * gradR;
-            A[i].z -= lr * gradA;
+                for (size_t i = 0; i < bind_ab.size(); ++i) {
+                    std::complex<double> diff = bind_ab[i].z - C[i].z;
+                    std::complex<double> grad_A = diff * std::conj(B[i].z);
+                    std::complex<double> grad_B = diff * std::conj(A[i].z);
+
+                    A[i].update(lr, grad_A);
+                    B[i].update(lr, grad_B);
+                }
+            }
         }
-    }
-
-    // 对话专用的 process：绑定 dialog_relation 并使用 inference 增强
-    std::string process(const std::string& input)
-    {
-        Layer current = decode(input);
-        Layer answer = current.bind(dialog_relation);
-        Layer refined = inference(answer);
-        return encode(refined);
-    }
-
-    // 便捷训练接口
-    void train_dialog_set(const std::vector<std::pair<std::string, std::string>>& dialogs,
-                          double lr = 0.01, size_t epochs = 200)
-    {
-        // 转换为基类需要的格式
-        std::vector<std::pair<std::string, std::string>> dataset = dialogs;
-        train(dataset, lr, epochs);
     }
 };
 
-} // namespace neuron
+class InferenceProcessor : public Processor<std::string> {
+public:
+    InferenceProcessor(
+        const std::vector<std::string>& entities,
+        const std::vector<std::string>& relations,
+        const std::vector<std::tuple<std::string, std::string, std::string>>& triples,
+        size_t embed_dim = 10,
+        double lr = 0.01,
+        size_t epochs = 500,
+        size_t max_memory = 100,
+        size_t trim_amount = 5
+    ) : Processor<std::string>(max_memory, trim_amount) {
+        // 初始化基类的 embed 列表
+        embed = entities;
+
+        // 初始化实体嵌入
+        for (const auto& e : entities)
+            entityLayers[e] = Layer::random(embed_dim);
+
+        // 初始化关系嵌入
+        for (const auto& r : relations)
+            relationLayers[r] = Layer::random(embed_dim);
+
+        // 训练：学习 S * R = O
+        for (size_t e = 0; e < epochs; ++e) {
+            for (const auto& [s, r, o] : triples) {
+                Layer& S = entityLayers[s];
+                Layer& R = relationLayers[r];
+                Layer& O = entityLayers[o];
+
+                Layer SR = S * R;
+                for (size_t i = 0; i < embed_dim; ++i) {
+                    std::complex<double> diff = SR[i].z - O[i].z;
+                    std::complex<double> grad_S = diff * std::conj(R[i].z);
+                    std::complex<double> grad_R = diff * std::conj(S[i].z);
+                    S[i].update(lr, grad_S);
+                    R[i].update(lr, grad_R);
+                }
+            }
+        }
+    }
+
+    // 解码：返回某个实体的嵌入
+    Layer decode(const std::string& input) const override {
+        auto it = entityLayers.find(input);
+        if (it != entityLayers.end()) return it->second;
+        return Layer();
+    }
+
+    // 编码：找出与输出层最匹配的实体（综合相似度与距离）
+    std::string encode(const Layer& output) const override {
+        if (output.size() == 0 || embed.empty()) return "?";
+        double best = -2.0;
+        std::string bestStr = "?";
+        for (const auto& name : embed) {
+            double sim = output.similarity(entityLayers.at(name));
+            double dist = output.distance(entityLayers.at(name));
+            double score = sim - std::abs(dist);
+            if (score > best) {
+                best = score;
+                bestStr = name;
+            }
+        }
+        return bestStr;
+    }
+
+    // 类比推理：计算 a - b + c （即 a / b * c）
+    std::string analogy(const std::string& a,
+                        const std::string& b,
+                        const std::string& c) {
+        Layer la = entityLayers[a];
+        Layer lb = entityLayers[b];
+        Layer lc = entityLayers[c];
+        Layer result = la / lb * lc;   // 复数乘除实现加减
+        return encode(result);
+    }
+
+private:
+    std::unordered_map<std::string, Layer> entityLayers;
+    std::unordered_map<std::string, Layer> relationLayers;
+};
+} // namespace period
+
